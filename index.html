@@ -1,266 +1,297 @@
-import React, { useRef, useEffect } from 'react';
-// The explicit imports are correctly removed, relying on CDN.
-
-// --- Constants and Data Structures ---
-
-/**
- * Interface mentally defined for card data.
- * type CardData = {
- * id: number;
- * type: 'Update' | 'Blog';
- * title: string;
- * snippet: string;
- * date: string;
- * categoryColor: string;
- * };
- */
-
-const ACCENT_BLUE = '#4285F4'; // Friendly, calming blue
-const LIGHT_GRAY = '#F7F7F7'; // Very light background
-
-// Mock Data for the communication updates section
-const PARENT_UPDATES_DATA = [
-  { id: 1, type: 'Update', title: 'Upcoming Field Trip Forms Due', snippet: 'Please ensure all permission slips for the Museum of Science trip are submitted by Friday.', date: 'Oct 28, 2025', categoryColor: '#4285F4' },
-  { id: 2, type: 'Update', title: 'Parent-Teacher Conference Sign-up', snippet: 'The booking portal is now open for our November conferences. Spots are filling up quickly!', date: 'Oct 24, 2025', categoryColor: '#34A853' },
-  { id: 3, type: 'Update', title: 'New Reading Challenge Launched', snippet: 'Our class goal is to read 1,000 books this semester! See the attached tracking sheet.', date: 'Oct 19, 2025', categoryColor: '#FBBC05' },
-  { id: 4, type: 'Update', title: 'Halloween Costume Day Guidelines', snippet: 'Review the rules regarding masks, weapons, and complexity for our costume parade next week.', date: 'Oct 15, 2025', categoryColor: '#EA4335' },
-  { id: 5, type: 'Update', title: 'Volunteer Opportunity: Classroom Helpers', snippet: 'We are looking for parents to help with sorting library books on Thursday mornings.', date: 'Oct 10, 2025', categoryColor: '#4285F4' },
-  { id: 6, type: 'Update', title: 'Math Unit 3 Test Results Sent Home', snippet: 'Scores and a breakdown of areas for improvement are in your child\'s folder.', date: 'Oct 5, 2025', categoryColor: '#34A853' },
-];
-
-// Mock Data for the blog section
-const BLOG_POSTS_DATA = [
-  { id: 101, type: 'Blog', title: 'The Power of Play-Based Learning', snippet: 'A deep dive into how structured play helps develop critical thinking skills in young learners.', date: 'Sep 30, 2025', categoryColor: '#8E24AA' },
-  { id: 102, type: 'Blog', title: 'Simple Tips for Homework Success', snippet: 'Establishing a routine and a dedicated space can make homework battles a thing of the past.', date: 'Sep 15, 2025', categoryColor: '#00796B' },
-  { id: 103, type: 'Blog', title: 'Decoding the New Common Core Standards', snippet: 'What parents need to know about the latest curriculum updates in our district.', date: 'Sep 1, 2025', categoryColor: '#FF7043' },
-];
-
-// --- Sub-Components ---
-
-/**
- * CommunicationCard component applies static styling and the fixed initial angle.
- * It uses a ref to allow GSAP to target it for the scroll-driven animations.
- */
-const CommunicationCard = ({ data, index, sectionBackground }) => {
-  const cardRef = useRef(null);
-
-  // Determine a slight, fixed rotation for flair, alternating for visual interest
-  const fixedRotationZ = index % 2 === 0 ? '1.5deg' : '-1.5deg';
-
-  const categoryStyle = {
-    backgroundColor: data.categoryColor,
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      id={`card-${data.id}`}
-      className={`communication-card relative p-6 sm:p-8 w-full max-w-2xl mx-auto shadow-xl transition-all duration-300 ${sectionBackground === LIGHT_GRAY ? 'bg-white' : 'bg-gray-50'} rounded-[1rem] will-change-transform`}
-      style={{
-        transform: `rotateZ(${fixedRotationZ})`, // Apply fixed angle
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' // Subtle shadow
-      }}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <span
-          className="text-xs font-semibold text-white px-3 py-1 rounded-full uppercase tracking-wider"
-          style={categoryStyle}
-        >
-          {data.type}
-        </span>
-        <span className="text-sm text-gray-500 font-medium">{data.date}</span>
-      </div>
-      <h3 className="text-xl sm:text-2xl font-extrabold text-gray-800 mb-3 leading-tight">{data.title}</h3>
-      <p className="text-gray-600 leading-relaxed">{data.snippet}</p>
-      <a href="#" className="mt-4 inline-block text-sm font-semibold hover:underline" style={{ color: ACCENT_BLUE }}>
-        Read More &rarr;
-      </a>
-    </div>
-  );
-};
-
-// --- Main App Component ---
-
-export default function App() {
-  const mainRef = useRef(null);
-
-  useEffect(() => {
-    let ctx;
-    let timeoutId;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. Alejandra Rodriguez's Class - Communication Hub</title>
     
-    // Function to check if GSAP is loaded and run the animations
-    const checkAndRunAnimations = () => {
-      // Access the global variables directly inside this function
-      const gsap = window.gsap;
-      const ScrollTrigger = window.ScrollTrigger;
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-      if (gsap && ScrollTrigger) {
-        // 1. Register Plugin
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // 2. Start GSAP Context and Animations
-        ctx = gsap.context(() => {
-          const cards = gsap.utils.toArray('.communication-card');
+    <style>
+        /* Apply Inter font family and smooth scrolling */
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* Custom styles for the fixed header */
+        header {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for the fixed element (header) height compensation */
+        section {
+            padding-top: 6rem; /* Adjust for fixed header height */
+        }
+        /* Force full screen height on mobile */
+        .min-h-screen {
+             min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-white">
 
-          cards.forEach((card, i) => {
-            const initialRotation = i % 2 === 0 ? 1.5 : -1.5;
+    <!-- Root container for the React application -->
+    <div id="root"></div>
 
-            // 1. Entrance Animation (Fly In from Bottom)
-            gsap.from(card, {
-              opacity: 0,
-              y: 200, 
-              scale: 0.9,
-              duration: 1.2,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: card,
-                start: 'bottom bottom', 
-                toggleActions: 'play none none reverse', 
-              },
-            });
+    <!-- Load React, ReactDOM, and Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Load GSAP and ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-            // 2. Exit Animation (Fly Out to Top)
-            gsap.to(card, {
-              y: -150, 
-              opacity: 0,
-              scale: 0.95,
-              rotationZ: initialRotation * 3, 
-              ease: 'none', 
-              scrollTrigger: {
-                trigger: card,
-                start: 'top top', 
-                end: 'center -10%', 
-                scrub: 1.5, 
-              },
-            });
-          });
-        }, mainRef);
-      } else {
-        // If not loaded yet, try again in 100ms
-        // Store timeoutId for cleanup
-        timeoutId = setTimeout(checkAndRunAnimations, 100);
-      }
-    };
+    <!-- Application Code in JSX -->
+    <script type="text/babel">
+        // Destructure React hooks from the global React object
+        const { useRef, useEffect } = React;
 
-    // Start the check loop
-    checkAndRunAnimations();
+        // --- Constants and Data Structures ---
 
-    // Cleanup function: revert GSAP context and clear the timeout if it's still running
-    return () => {
-      if (ctx) {
-        ctx.revert();
-      }
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []); // Run only once on mount
+        const ACCENT_BLUE = '#4285F4'; // Friendly, calming blue
+        const LIGHT_GRAY = '#F7F7F7'; // Very light background
 
-  // --- Layout Components ---
+        // Mock Data for the communication updates section
+        const PARENT_UPDATES_DATA = [
+          { id: 1, type: 'Update', title: 'Upcoming Field Trip Forms Due', snippet: 'Please ensure all permission slips for the Museum of Science trip are submitted by Friday.', date: 'Oct 28, 2025', categoryColor: '#4285F4' },
+          { id: 2, type: 'Update', title: 'Parent-Teacher Conference Sign-up', snippet: 'The booking portal is now open for our November conferences. Spots are filling up quickly!', date: 'Oct 24, 2025', categoryColor: '#34A853' },
+          { id: 3, type: 'Update', title: 'New Reading Challenge Launched', snippet: 'Our class goal is to read 1,000 books this semester! See the attached tracking sheet.', date: 'Oct 19, 2025', categoryColor: '#FBBC05' },
+          { id: 4, type: 'Update', title: 'Halloween Costume Day Guidelines', snippet: 'Review the rules regarding masks, weapons, and complexity for our costume parade next week.', date: 'Oct 15, 2025', categoryColor: '#EA4335' },
+          { id: 5, type: 'Update', title: 'Volunteer Opportunity: Classroom Helpers', snippet: 'We are looking for parents to help with sorting library books on Thursday mornings.', date: 'Oct 10, 2025', categoryColor: '#4285F4' },
+          { id: 6, type: 'Update', title: 'Math Unit 3 Test Results Sent Home', snippet: 'Scores and a breakdown of areas for improvement are in your child\'s folder.', date: 'Oct 5, 2025', categoryColor: '#34A853' },
+        ];
 
-  const Header = () => (
-    <header className="fixed top-0 left-0 right-0 z-50 shadow-md bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: ACCENT_BLUE }}>
-          Mrs. Alejandra Rodriguez's Class
-        </h1>
-        <nav className="hidden sm:block">
-          <a href="#updates" className="text-gray-600 hover:text-gray-900 font-medium px-4">Updates</a>
-          <a href="#blog" className="text-gray-600 hover:text-gray-900 font-medium px-4">Blog</a>
-          <a href="#contact" className="text-white px-4 py-2 rounded-full font-semibold transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: ACCENT_BLUE }}>
-            Contact
-          </a>
-        </nav>
-      </div>
-    </header>
-  );
+        // Mock Data for the blog section
+        const BLOG_POSTS_DATA = [
+          { id: 101, type: 'Blog', title: 'The Power of Play-Based Learning', snippet: 'A deep dive into how structured play helps develop critical thinking skills in young learners.', date: 'Sep 30, 2025', categoryColor: '#8E24AA' },
+          { id: 102, type: 'Blog', title: 'Simple Tips for Homework Success', snippet: 'Establishing a routine and a dedicated space can make homework battles a thing of the past.', date: 'Sep 15, 2025', categoryColor: '#00796B' },
+          { id: 103, type: 'Blog', title: 'Decoding the New Common Core Standards', snippet: 'What parents need to know about the latest curriculum updates in our district.', date: 'Sep 1, 2025', categoryColor: '#FF7043' },
+        ];
 
-  const Footer = () => (
-    <footer className="w-full py-8 text-center text-sm text-gray-500" style={{ backgroundColor: LIGHT_GRAY }}>
-      <p>&copy; {new Date().getFullYear()} Mrs. Alejandra Rodriguez's Classroom. All Rights Reserved.</p>
-      <p className="mt-1">Powered by Performance & Scroll-Driven Magic.</p>
-    </footer>
-  );
+        // --- Sub-Components ---
 
-  const Hero = () => (
-    <section className="pt-32 pb-16 text-center" style={{ backgroundColor: LIGHT_GRAY }}>
-      <div className="max-w-4xl mx-auto px-4">
-        <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
-          Welcome to Our Digital Classroom
-        </h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Your direct line for essential announcements, photos, and insights into what we're learning every day.
-        </p>
-      </div>
-    </section>
-  );
+        const CommunicationCard = ({ data, index, sectionBackground }) => {
+          const cardRef = useRef(null);
 
-  // --- Main Render ---
+          // Determine a slight, fixed rotation for flair, alternating for visual interest
+          const fixedRotationZ = index % 2 === 0 ? '1.5deg' : '-1.5deg';
 
-  return (
-    <div ref={mainRef} className="min-h-screen font-sans bg-white" style={{ fontFamily: '"Inter", sans-serif' }}>
-      {/* Configuration Scripts */}
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-      
-      {/* GSAP and ScrollTrigger CDN imports MUST be placed before the React component mounts */}
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+          const categoryStyle = {
+            backgroundColor: data.categoryColor,
+          };
 
-      <Header />
-
-      <main>
-        <Hero />
-
-        {/* Section 1: Parent Communication Updates */}
-        <section id="updates" className="py-16 md:py-24" style={{ backgroundColor: 'white' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 text-center border-b-4 pb-2 mx-auto inline-block" style={{ borderColor: ACCENT_BLUE }}>
-              Latest Class Updates
-            </h2>
-
-            <div className="space-y-16">
-              {PARENT_UPDATES_DATA.map((data, index) => (
-                <CommunicationCard
-                  key={data.id}
-                  data={data}
-                  index={index}
-                  sectionBackground="white"
-                />
-              ))}
+          return (
+            <div
+              ref={cardRef}
+              id={`card-${data.id}`}
+              className={`communication-card relative p-6 sm:p-8 w-full max-w-2xl mx-auto shadow-xl transition-all duration-300 ${sectionBackground === LIGHT_GRAY ? 'bg-white' : 'bg-gray-50'} rounded-[1rem] will-change-transform`}
+              style={{
+                transform: `rotateZ(${fixedRotationZ})`, // Apply fixed angle
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' // Subtle shadow
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-xs font-semibold text-white px-3 py-1 rounded-full uppercase tracking-wider"
+                  style={categoryStyle}
+                >
+                  {data.type}
+                </span>
+                <span className="text-sm text-gray-500 font-medium">{data.date}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-gray-800 mb-3 leading-tight">{data.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{data.snippet}</p>
+              <a href="#" className="mt-4 inline-block text-sm font-semibold hover:underline" style={{ color: ACCENT_BLUE }}>
+                Read More &rarr;
+              </a>
             </div>
-          </div>
-        </section>
+          );
+        };
 
-        {/* Section 2: Teacher Blog Posts */}
-        <section id="blog" className="py-16 md:py-24" style={{ backgroundColor: LIGHT_GRAY }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 text-center border-b-4 pb-2 mx-auto inline-block" style={{ borderColor: ACCENT_BLUE }}>
-              The Teacher's Desk: Blog
-            </h2>
-            <div className="space-y-16">
-              {BLOG_POSTS_DATA.map((data, index) => (
-                <CommunicationCard
-                  key={data.id}
-                  data={data}
-                  index={index + PARENT_UPDATES_DATA.length} // Ensure unique animation index
-                  sectionBackground={LIGHT_GRAY}
-                />
-              ))}
+        // --- Main App Component ---
+
+        function App() {
+          const mainRef = useRef(null);
+
+          useEffect(() => {
+            let ctx;
+            let timeoutId;
+            
+            // Function to check if GSAP is loaded and run the animations
+            const checkAndRunAnimations = () => {
+              // Access the global variables directly inside this function
+              const gsap = window.gsap;
+              const ScrollTrigger = window.ScrollTrigger;
+
+              if (gsap && ScrollTrigger) {
+                // 1. Register Plugin
+                gsap.registerPlugin(ScrollTrigger);
+                
+                // 2. Start GSAP Context and Animations
+                ctx = gsap.context(() => {
+                  const cards = gsap.utils.toArray('.communication-card');
+
+                  cards.forEach((card, i) => {
+                    const initialRotation = i % 2 === 0 ? 1.5 : -1.5;
+
+                    // 1. Entrance Animation (Fly In from Bottom)
+                    gsap.from(card, {
+                      opacity: 0,
+                      y: 200, 
+                      scale: 0.9,
+                      duration: 1.2,
+                      ease: 'power3.out',
+                      scrollTrigger: {
+                        trigger: card,
+                        start: 'bottom bottom', 
+                        toggleActions: 'play none none reverse', 
+                      },
+                    });
+
+                    // 2. Exit Animation (Fly Out to Top)
+                    gsap.to(card, {
+                      y: -150, 
+                      opacity: 0,
+                      scale: 0.95,
+                      rotationZ: initialRotation * 3, 
+                      ease: 'none', 
+                      scrollTrigger: {
+                        trigger: card,
+                        start: 'top top', 
+                        end: 'center -10%', 
+                        scrub: 1.5, 
+                      },
+                    });
+                  });
+                }, mainRef);
+              } else {
+                // If not loaded yet, try again in 100ms
+                // Store timeoutId for cleanup
+                timeoutId = setTimeout(checkAndRunAnimations, 100);
+              }
+            };
+
+            // Start the check loop
+            checkAndRunAnimations();
+
+            // Cleanup function: revert GSAP context and clear the timeout if it's still running
+            return () => {
+              if (ctx) {
+                ctx.revert();
+              }
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
+            };
+          }, []); // Run only once on mount
+
+          // --- Layout Components ---
+
+          const Header = () => (
+            <header className="fixed top-0 left-0 right-0 z-50 shadow-md bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: ACCENT_BLUE }}>
+                  Mrs. Alejandra Rodriguez's Class
+                </h1>
+                <nav className="hidden sm:block">
+                  <a href="#updates" className="text-gray-600 hover:text-gray-900 font-medium px-4">Updates</a>
+                  <a href="#blog" className="text-gray-600 hover:text-gray-900 font-medium px-4">Blog</a>
+                  <a href="#contact" className="text-white px-4 py-2 rounded-full font-semibold transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: ACCENT_BLUE }}>
+                    Contact
+                  </a>
+                </nav>
+              </div>
+            </header>
+          );
+
+          const Footer = () => (
+            <footer className="w-full py-8 text-center text-sm text-gray-500" style={{ backgroundColor: LIGHT_GRAY }}>
+              <p>&copy; {new Date().getFullYear()} Mrs. Alejandra Rodriguez's Classroom. All Rights Reserved.</p>
+              <p className="mt-1">Powered by Performance & Scroll-Driven Magic.</p>
+            </footer>
+          );
+
+          const Hero = () => (
+            <section className="pt-32 pb-16 text-center" style={{ backgroundColor: LIGHT_GRAY }}>
+              <div className="max-w-4xl mx-auto px-4">
+                <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+                  Welcome to Our Digital Classroom
+                </h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  Your direct line for essential announcements, photos, and insights into what we're learning every day.
+                </p>
+              </div>
+            </section>
+          );
+
+          // --- Main Render ---
+
+          return (
+            <div ref={mainRef} className="min-h-screen font-sans bg-white">
+              <Header />
+
+              <main>
+                <Hero />
+
+                {/* Section 1: Parent Communication Updates */}
+                <section id="updates" className="py-16 md:py-24" style={{ backgroundColor: 'white' }}>
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 text-center border-b-4 pb-2 mx-auto inline-block" style={{ borderColor: ACCENT_BLUE }}>
+                      Latest Class Updates
+                    </h2>
+
+                    <div className="space-y-16">
+                      {PARENT_UPDATES_DATA.map((data, index) => (
+                        <CommunicationCard
+                          key={data.id}
+                          data={data}
+                          index={index}
+                          sectionBackground="white"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Section 2: Teacher Blog Posts */}
+                <section id="blog" className="py-16 md:py-24" style={{ backgroundColor: LIGHT_GRAY }}>
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 text-center border-b-4 pb-2 mx-auto inline-block" style={{ borderColor: ACCENT_BLUE }}>
+                      The Teacher's Desk: Blog
+                    </h2>
+                    <div className="space-y-16">
+                      {BLOG_POSTS_DATA.map((data, index) => (
+                        <CommunicationCard
+                          key={data.id}
+                          data={data}
+                          index={index + PARENT_UPDATES_DATA.length} // Ensure unique animation index
+                          sectionBackground={LIGHT_GRAY}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Contact CTA */}
+                <section id="contact" className="py-16 text-center bg-white">
+                  <p className="text-lg text-gray-600 mb-6">Have questions? We're here to help!</p>
+                  <a href="#" className="inline-block text-white px-8 py-3 rounded-full text-lg font-bold transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ backgroundColor: ACCENT_BLUE }}>
+                    Email Mrs. Rodriguez
+                  </a>
+                </section>
+              </main>
+
+              <Footer />
             </div>
-          </div>
-        </section>
+          );
+        }
 
-        {/* Contact CTA */}
-        <section id="contact" className="py-16 text-center bg-white">
-          <p className="text-lg text-gray-600 mb-6">Have questions? We're here to help!</p>
-          <a href="#" className="inline-block text-white px-8 py-3 rounded-full text-lg font-bold transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ backgroundColor: ACCENT_BLUE }}>
-            Email Mrs. Rodriguez
-          </a>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
-  );
-}
+        // Initialize the React application
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
